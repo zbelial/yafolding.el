@@ -168,6 +168,70 @@ If given, toggle all entries that start at INDENT-LEVEL."
         (next-line))) ; using next-line instead of forward-line, for issue#23
     (list beg end)))
 
+(defun yafolding-get-element-region-same-level ()
+  "Get '(beg end) of current element."
+  (let ((beg (line-end-position))
+        (end (line-end-position))
+        (indentation (current-indentation)))
+    (save-excursion
+      (previous-line)
+      (while (and (>= (line-number-at-pos) (line-number-at-pos (point-min)))
+                  (or (>= (current-indentation) indentation)
+                      (yafolding-should-ignore-current-line-p)))
+        (unless (yafolding-should-ignore-current-line-p)
+          (setq beg (line-beginning-position)))
+        (previous-line))
+      (if (> (line-number-at-pos) (line-number-at-pos (point-min)))
+          (setq beg (line-end-position))))
+    (save-excursion
+      (next-line)
+      (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
+                  (or (>= (current-indentation) indentation)
+                      (yafolding-should-ignore-current-line-p)))
+        (unless (yafolding-should-ignore-current-line-p)
+          (setq end (line-end-position)))
+        (next-line))) ; using next-line instead of forward-line, for issue#23
+    (list beg end)))
+
+(defun yafolding-get-element-region-dwim ()
+  "Get '(beg end) of current element."
+  (let ((indentation (current-indentation))
+        (stop nil)
+        (fold-same-level nil))
+    (save-excursion
+      (next-line)
+      (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
+                  (not stop))
+        (unless (yafolding-should-ignore-current-line-p)
+          (setq stop t)
+          (if (= (current-indentation) indentation)
+              (setq fold-same-level t)))
+        (next-line))) ; using next-line instead of forward-line, for issue#23
+    (if fold-same-level
+        (yafolding-get-element-region-same-level)
+      (yafolding-get-element-region))))
+
+(defun yafolding-hide-element-dwim ()
+  "Hide current element."
+  (interactive)
+  (let ((region (yafolding-get-element-region-dwim)))
+    (yafolding-hide-region (car region)
+                           (cadr region))))
+
+(defun yafolding-show-element-dwin ()
+  "Show current element."
+  (interactive)
+  (yafolding-show-region (line-beginning-position)
+                         (+ 1 (line-end-position))))
+
+(defun yafolding-toggle-element-dwim ()
+  "Toggle current element."
+  (interactive)
+  (if (yafolding-get-overlays (line-beginning-position)
+                              (+ 1 (line-end-position)))
+      (yafolding-show-element-dwin)
+    (yafolding-hide-element-dwin)))
+
 (defun yafolding-hide-element ()
   "Hide current element."
   (interactive)
