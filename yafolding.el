@@ -218,7 +218,7 @@ If given, toggle all entries that start at INDENT-LEVEL."
     (yafolding-hide-region (car region)
                            (cadr region))))
 
-(defun yafolding-show-element-dwin ()
+(defun yafolding-show-element-dwim ()
   "Show current element."
   (interactive)
   (yafolding-show-region (line-beginning-position)
@@ -229,8 +229,8 @@ If given, toggle all entries that start at INDENT-LEVEL."
   (interactive)
   (if (yafolding-get-overlays (line-beginning-position)
                               (+ 1 (line-end-position)))
-      (yafolding-show-element-dwin)
-    (yafolding-hide-element-dwin)))
+      (yafolding-show-element-dwim)
+    (yafolding-hide-element-dwim)))
 
 (defun yafolding-hide-element ()
   "Hide current element."
