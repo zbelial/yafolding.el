@@ -48,6 +48,11 @@
   :type 'boolean
   :group 'yafolding)
 
+(defface yafolding-fringe-marks-face
+  '()
+  "Face for fringe marks."
+  :group 'yafolding)
+
 (defun yafolding-get-overlays (beg end)
   "Get all overlays between BEG and END."
   (delq nil
@@ -129,7 +134,7 @@ If given, toggle all entries that start at INDENT-LEVEL."
       (let ((before-string
              (concat
               (when yafolding-show-fringe-marks
-                (propertize " " 'display '(left-fringe right-triangle)))
+                (propertize " " 'display '(left-fringe right-triangle yafolding-fringe-marks-face)))
               (yafolding-ellipsis)))
             (new-overlay (make-overlay beg end)))
         (overlay-put new-overlay 'invisible t)
